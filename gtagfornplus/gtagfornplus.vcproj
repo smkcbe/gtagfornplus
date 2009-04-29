@@ -117,10 +117,12 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="false"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)\Common&quot;;&quot;$(ProjectDir)\Resource&quot;;&quot;$(ProjectDir)\Src&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;GTAGFORNPLUS_EXPORTS"
-				RuntimeLibrary="2"
+				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile="$(IntDir)\$(TargetName).pch"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -135,6 +137,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="shlwapi.lib comctl32.lib"
+				ShowProgress="0"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -162,7 +166,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y $(TargetPath) &quot;C:\Program Files\Notepad++\plugins&quot;"
+				CommandLine="cp &quot;$(TargetDir)\$(TargetFileName)&quot; &quot;c:\Program Files\Notepad++\plugins&quot;"
 			/>
 		</Configuration>
 	</Configurations>
