@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "stdafx.h"
 #include "FileListbox.h"
 
-void GtagFileListbox::init(HINSTANCE hInst, HWND parent,RECT coOrd)
+void GtagFileListbox::init(HINSTANCE hInst, HWND parent)
 {
 	hNewFont = 0;
 
@@ -28,7 +28,7 @@ void GtagFileListbox::init(HINSTANCE hInst, HWND parent,RECT coOrd)
 
 	_hSelf = CreateWindowEx(0, TEXT("listbox"), NULL,
 		WS_CHILD | WS_VISIBLE | WS_BORDER |WS_HSCROLL| LBS_STANDARD ^ LBS_SORT ,
-		coOrd.left, coOrd.top,coOrd.right,coOrd.bottom, parent, 0, hInst, NULL );
+		0,0,0,0, parent, 0, hInst, NULL );
 
 	if ( !_hSelf )
 	{

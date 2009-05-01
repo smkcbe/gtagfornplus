@@ -52,24 +52,16 @@ void FileListDialog::ShowDialog( bool Show )
 	{
 		RECT coOrd;
 		create(&TBData);
-		//if ( !NLGetText( g_hInstance, g_NppData._nppHandle, TEXT("Gtag Search Results"), TBData.pszName, MAX_PATH) )
-			lstrcpy( TBData.pszName, TEXT("Gtag Search Results") );
+		lstrcpy( TBData.pszName, TEXT("Gtag Search Results") );
 
 		TBData.uMask			= DWS_DF_CONT_LEFT | DWS_ICONTAB;
 		TBData.pszModuleName	= (LPCTSTR)getPluginFileName();
 		TBData.dlgID			= FILELIST_DOCKABLE_WINDOW_INDEX ;
 		// define the default docking behaviour
 		::SendMessage( _hParent, NPPM_DMMREGASDCKDLG, 0,  (LPARAM)&TBData);
-		coOrd.left = 5;
-		coOrd.top  = 5;
-		coOrd.right=600;
-		coOrd.bottom=175;
-		gtagSearchResult.init(g_hInstance,getHSelf(),coOrd);
-		coOrd.left = 610;
-		coOrd.top  = 5;
-		coOrd.right=665;
-		coOrd.bottom=175;
-		gtagFunctionList.init(g_hInstance,getHSelf(),coOrd);
+		gtagSearchResult.init(g_hInstance,getHSelf());
+		gtagFunctionList.init(g_hInstance,getHSelf());
+
 	}
 
 	display( Show );
@@ -359,6 +351,12 @@ BOOL CALLBACK FileListDialog::run_dlgProc( HWND hWnd, UINT msg, WPARAM wp, LPARA
 			break;
 
 		case WM_SIZE:
+			RECT coOrd;
+			getClientRect(coOrd);
+			coOrd.right/=2;
+			MoveWindow(gtagSearchResult.getHSelf(),coOrd.left+2,coOrd.top,coOrd.right,coOrd.bottom,TRUE);
+			coOrd.left= coOrd.right;
+			MoveWindow(gtagFunctionList.getHSelf(),coOrd.left,coOrd.top,coOrd.right-2,coOrd.bottom,TRUE);
 		case WM_MOVE:
 		case WM_COMMAND:
 			if ( (HWND)lp == gtagSearchResult.getHSelf() )
