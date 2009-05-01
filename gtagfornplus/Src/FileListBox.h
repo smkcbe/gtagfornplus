@@ -29,7 +29,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 class GtagFileListbox : public Window
 {
 public:
-	virtual void init(HINSTANCE hInst, HWND parent,RECT CoOrd);
+	virtual void init(HINSTANCE hInst, HWND parent);
 	virtual void destroy();
 
 	virtual void AddItem( std::wstring item );
