@@ -1,11 +1,181 @@
 #include "stdafx.h"
 #include "FileListDialog.h"
 
+// Splitter logic from http://www.codeproject.com/KB/winsdk/SplitterWindowProject.aspx
+void FileListDialog::DrawXorBar(HDC hdc, int x1, int y1, int width, int height)
+{
+	static WORD _dotPatternBmp[8] = 
+	{ 
+		0x00aa, 0x0055, 0x00aa, 0x0055, 
+		0x00aa, 0x0055, 0x00aa, 0x0055
+	};
+
+	HBITMAP hbm;
+	HBRUSH  hbr, hbrushOld;
+
+	hbm = CreateBitmap(8, 8, 1, 1, _dotPatternBmp);
+	hbr = CreatePatternBrush(hbm);
+	
+	SetBrushOrgEx(hdc, x1, y1, 0);
+	hbrushOld = (HBRUSH)SelectObject(hdc, hbr);
+	
+	PatBlt(hdc, x1, y1, width, height, PATINVERT);
+	
+	SelectObject(hdc, hbrushOld);
+	
+	DeleteObject(hbr);
+	DeleteObject(hbm);
+}
+
+LRESULT FileListDialog::Splitter_OnLButtonDown(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
+{
+	POINT pt;
+	HDC hdc;
+	RECT rect;
+
+	pt.x = (short)LOWORD(lParam);  // horizontal position of cursor 
+	pt.y = (short)HIWORD(lParam);
+
+	GetWindowRect(hwnd, &rect);
+
+	//convert the mouse coordinates relative to the top-left of
+	//the window
+	ClientToScreen(hwnd, &pt);
+	pt.x -= rect.left;
+	pt.y -= rect.top;
+	
+	//same for the window coordinates - make them relative to 0,0
+	OffsetRect(&rect, -rect.left, -rect.top);
+	
+	if(pt.x < 0) pt.x = 0;
+	if(pt.x > rect.right-4) 
+	{
+		pt.x = rect.right-4;
+	}
+
+	fDragMode = TRUE;
+
+	SetCapture(hwnd);
+
+	hdc = GetWindowDC(hwnd);
+	DrawXorBar(hdc,pt.x - 2, 1,4, rect.right-2);
+	ReleaseDC(hwnd, hdc);
+	
+	oldx = pt.x;
+		
+	return 0;
+}
+
+LRESULT FileListDialog::Splitter_OnLButtonUp(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
+{
+	HDC hdc;
+	RECT rect;
+
+	POINT pt;
+	pt.x = (short)LOWORD(lParam);  // horizontal position of cursor 
+	pt.y = (short)HIWORD(lParam);
+
+	if(fDragMode == FALSE)
+		return 0;
+	
+	GetWindowRect(hwnd, &rect);
+
+	ClientToScreen(hwnd, &pt);
+	pt.x -= rect.left;
+	pt.y -= rect.top;
+	
+	OffsetRect(&rect, -rect.left, -rect.top);
+
+	if(pt.x < 0) pt.x = 0;
+	if(pt.x > rect.right-4) 
+	{
+		pt.x = rect.right-4;
+	}
+
+	hdc = GetWindowDC(hwnd);
+	DrawXorBar(hdc,oldx - 2, 1,4, rect.right-2);			
+	ReleaseDC(hwnd, hdc);
+
+	oldx = pt.x;
+
+	fDragMode = FALSE;
+
+	//convert the splitter position back to screen coords.
+	GetWindowRect(hwnd, &rect);
+	pt.x += rect.left;
+	pt.y += rect.top;
+
+	//now convert into CLIENT coordinates
+	ScreenToClient(hwnd, &pt);
+	GetClientRect(hwnd, &rect);
+	WindowRatio=(float)pt.x/(float)rect.right;
+
+	//position the child controls
+	ResizeListBoxes();
+
+	ReleaseCapture();
+
+	return 0;
+}
+
+LRESULT FileListDialog::Splitter_OnMouseMove(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
+{
+	HDC hdc;
+	RECT rect;
+
+	POINT pt;
+
+	if(fDragMode == FALSE) return 0;
+
+	pt.x = (short)LOWORD(lParam);  // horizontal position of cursor 
+	pt.y = (short)HIWORD(lParam);
+
+	GetWindowRect(hwnd, &rect);
+
+	ClientToScreen(hwnd, &pt);
+	pt.x -= rect.left;
+	pt.y -= rect.top;
+
+	OffsetRect(&rect, -rect.left, -rect.top);
+
+	if(pt.x < 0) pt.x = 0;
+	if(pt.x > rect.right-4) 
+	{
+		pt.x = rect.right-4;
+	}
+
+	if(pt.x != oldx && wParam & MK_LBUTTON)
+	{
+		hdc = GetWindowDC(hwnd);
+		DrawXorBar(hdc, oldx - 2,1, 4,rect.right-2);
+		DrawXorBar(hdc, pt.x - 2,1, 4,rect.right-2);
+			
+		ReleaseDC(hwnd, hdc);
+
+		oldx = pt.x;
+	}
+
+	return 0;
+}
+void FileListDialog::ResizeListBoxes(){
+	RECT coOrd;
+	unsigned int OldRight;
+	getClientRect(coOrd);
+	OldRight = coOrd.right;
+	coOrd.right*=WindowRatio;
+	MoveWindow(gtagSearchResult.getHSelf(),coOrd.left,coOrd.top,coOrd.right-2,coOrd.bottom,TRUE);
+	coOrd.left=coOrd.right;
+	coOrd.right = OldRight;
+	MoveWindow(gtagFunctionList.getHSelf(),coOrd.left,coOrd.top,coOrd.right+2,coOrd.bottom,TRUE);
+}
 FileListDialog::FileListDialog()
 : DockingDlgInterface(IDD_DOCK_DLG)
 , IsShown( false ){
-//	SearchString=L"OpRttCallTrace";
+	WindowRatio=0.3;
 	size_of_content = 0;
+	oldx = -4;
+	fMoved = FALSE;
+	fDragMode = FALSE;
 }
 
 FileListDialog::~FileListDialog(){}
@@ -50,7 +220,6 @@ void FileListDialog::ShowDialog( bool Show )
 {
 	if ( !isCreated() )
 	{
-		RECT coOrd;
 		create(&TBData);
 		lstrcpy( TBData.pszName, TEXT("Gtag Search Results") );
 
@@ -351,12 +520,19 @@ BOOL CALLBACK FileListDialog::run_dlgProc( HWND hWnd, UINT msg, WPARAM wp, LPARA
 			break;
 
 		case WM_SIZE:
-			RECT coOrd;
-			getClientRect(coOrd);
-			coOrd.right/=2;
-			MoveWindow(gtagSearchResult.getHSelf(),coOrd.left+2,coOrd.top,coOrd.right,coOrd.bottom,TRUE);
-			coOrd.left= coOrd.right;
-			MoveWindow(gtagFunctionList.getHSelf(),coOrd.left,coOrd.top,coOrd.right-2,coOrd.bottom,TRUE);
+			ResizeListBoxes();
+			break;
+		case WM_LBUTTONDOWN:
+			Splitter_OnLButtonDown(hWnd, msg, wp, lp);
+			return 0;
+
+		case WM_LBUTTONUP:
+			Splitter_OnLButtonUp(hWnd, msg, wp, lp);
+			return 0;
+
+		case WM_MOUSEMOVE:
+			Splitter_OnMouseMove(hWnd, msg, wp, lp);
+			return 0;
 		case WM_MOVE:
 		case WM_COMMAND:
 			if ( (HWND)lp == gtagSearchResult.getHSelf() )
@@ -423,3 +599,4 @@ BOOL CALLBACK FileListDialog::run_dlgProc( HWND hWnd, UINT msg, WPARAM wp, LPARA
 void FileListDialog::InitialiseDialog()
 {
 }
+

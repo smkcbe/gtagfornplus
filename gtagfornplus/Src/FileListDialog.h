@@ -71,6 +71,15 @@ private:
 	int SearchStringSize;
 	void OpenFileAndGotoLine(const wchar_t *,int);
 	std::wstring file_name;
+	float WindowRatio;
+	void DrawXorBar(HDC hdc, int x1, int y1, int width, int height);
+	LRESULT Splitter_OnLButtonDown(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam);
+	LRESULT Splitter_OnLButtonUp(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam);
+	LRESULT Splitter_OnMouseMove(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam);
+	void ResizeListBoxes();
+	int  oldx ;
+	BOOL fMoved;
+	BOOL fDragMode;
 };
 
 
