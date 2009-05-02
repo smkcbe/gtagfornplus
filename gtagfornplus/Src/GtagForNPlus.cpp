@@ -85,6 +85,7 @@ void ToggleDialog(){
 
 
 void FindDecl(){
+	file_list_dialog.IsSymbolSearch = FALSE;
 	file_list_dialog.FullPathToExe = L".\\plugins\\gtagfornplus\\global.exe";
 	file_list_dialog.getSearchString();
 	file_list_dialog.Parameters = L" -a --result=grep ";
@@ -95,12 +96,23 @@ void FindDecl(){
 }
 
 void FindRefr(){
+	file_list_dialog.IsSymbolSearch = FALSE;
 	file_list_dialog.FullPathToExe = L".\\plugins\\gtagfornplus\\global.exe";
 	file_list_dialog.getSearchString();
 	file_list_dialog.Parameters = L" -ar ";
 	file_list_dialog.Parameters.append(file_list_dialog.SearchString);
 	file_list_dialog.getCurrentDir();
 	file_list_dialog.IsDefSearch = FALSE;
+	file_list_dialog.Search();
+	if(file_list_dialog.gtagSearchResult.GetItemCount()==0)
+		file_list_dialog.IsSymbolSearch = TRUE;
+	else
+		return;
+	file_list_dialog.symbol_linenum_list.clear();
+	file_list_dialog.symbol_list.clear();
+	file_list_dialog.symbol_blocks.clear();
+	file_list_dialog.Parameters = L" -axs --result=grep ";
+	file_list_dialog.Parameters.append(file_list_dialog.SearchString);
 	file_list_dialog.Search();
 }
 

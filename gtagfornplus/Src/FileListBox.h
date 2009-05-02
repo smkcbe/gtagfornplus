@@ -36,7 +36,7 @@ public:
 	virtual void ClearAll();
 	virtual INT GetItemCount();
 	virtual INT GetCurrentSelectionIndex();
-	int GetCurrentSelection(std::wstring &content);
+	int GetCurrentSelection(std::wstring &, BOOL Truncate=TRUE);
 	//bool IsSelChange();
 private:
 	HFONT hNewFont;

@@ -49,11 +49,15 @@ public:
 	std::wstring Parameters;
 	std::wstring Dir;
 	BOOL IsDefSearch;
+	BOOL IsSymbolSearch;
 	std::vector<int> linenum_list;
 	std::vector<int> final_linenum_list;
 	std::vector<int> ctag_linenum_list;
 	std::vector<std::wstring> ctag_func_list;
-	int size_of_content;
+	std::vector<int> symbol_linenum_list;
+	std::vector<int> symbol_blocks;
+	std::vector<std::wstring> symbol_list;
+	int file_name_length;
 	void getCurrentDir();
 	void getSearchString();
 	
@@ -66,11 +70,10 @@ protected:
 private:
 	bool IsShown;
 	tTbData TBData;
-	void OnListSelectionChanged();
 	void OnFileListDoubleClicked();
 	int SearchStringSize;
 	void OpenFileAndGotoLine(const wchar_t *,int);
-	std::wstring file_name;
+	std::wstring fileName;
 	float WindowRatio;
 	void DrawXorBar(HDC hdc, int x1, int y1, int width, int height);
 	LRESULT Splitter_OnLButtonDown(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam);

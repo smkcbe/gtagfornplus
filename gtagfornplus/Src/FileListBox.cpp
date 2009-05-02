@@ -27,7 +27,7 @@ void GtagFileListbox::init(HINSTANCE hInst, HWND parent)
 	Window::init( hInst, parent );
 
 	_hSelf = CreateWindowEx(0, TEXT("listbox"), NULL,
-		WS_CHILD | WS_VISIBLE | WS_BORDER |WS_HSCROLL| LBS_STANDARD ^ LBS_SORT ,
+		WS_CHILD | WS_VISIBLE | WS_BORDER |WS_HSCROLL |WS_VSCROLL| LBS_STANDARD ^ LBS_SORT ,
 		0,0,0,0, parent, 0, hInst, NULL );
 
 	if ( !_hSelf )
@@ -81,13 +81,13 @@ INT GtagFileListbox::GetCurrentSelectionIndex()
 	return (INT)::SendMessage( _hSelf, LB_GETCURSEL, 0, 0 );
 }
 
-int GtagFileListbox::GetCurrentSelection(std::wstring &content)
+int GtagFileListbox::GetCurrentSelection(std::wstring &content,BOOL Truncate)
 {
 	int sel = (INT)::SendMessage( _hSelf, LB_GETCURSEL, 0, 0 );
 	TCHAR data[1024];
 	sel = (int)::SendMessage(_hSelf,LB_GETTEXT ,(WPARAM)sel,(LPARAM)(LPTSTR)data);
 	content.clear();
-	data[sel-1]=0x0;
+	if(Truncate)data[sel-1]=0x0;
 	content.append(data,sel);
 	return sel;
 }

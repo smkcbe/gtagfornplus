@@ -165,17 +165,18 @@ void FileListDialog::ResizeListBoxes(){
 	coOrd.right*=WindowRatio;
 	MoveWindow(gtagSearchResult.getHSelf(),coOrd.left,coOrd.top,coOrd.right-2,coOrd.bottom,TRUE);
 	coOrd.left=coOrd.right;
-	coOrd.right = OldRight;
-	MoveWindow(gtagFunctionList.getHSelf(),coOrd.left,coOrd.top,coOrd.right+2,coOrd.bottom,TRUE);
+	coOrd.right = OldRight-coOrd.right;
+	MoveWindow(gtagFunctionList.getHSelf(),coOrd.left+2,coOrd.top,coOrd.right,coOrd.bottom,TRUE);
 }
 FileListDialog::FileListDialog()
 : DockingDlgInterface(IDD_DOCK_DLG)
 , IsShown( false ){
-	WindowRatio=0.3;
-	size_of_content = 0;
+	WindowRatio=(float)0.5;
+	file_name_length = 0;
 	oldx = -4;
 	fMoved = FALSE;
 	fDragMode = FALSE;
+	IsSymbolSearch = FALSE;
 }
 
 FileListDialog::~FileListDialog(){}
@@ -328,6 +329,8 @@ void FileListDialog::ReadFromPipe(HANDLE g_hChildStd_OUT_Rd,int SearchType)
    TCHAR tchBuf[UCHAR_SIZE];
    BOOL bSuccess = FALSE;
    SearchStringSize = SearchString.size();
+   std::wstring LastFile,NewFile;
+   int Blocks=0;
 
    if(SearchType == GTAG_FILES)
 	   	gtagSearchResult.ClearAll();
@@ -369,10 +372,31 @@ void FileListDialog::ReadFromPipe(HANDLE g_hChildStd_OUT_Rd,int SearchType)
 				}
 			}
 			else if(SearchType==GTAG_FILES)	{
+				fileName=tchBuf;
+				int colonPos=0,numberPos=0;
+				if(IsSymbolSearch){
+					if((colonPos=fileName.find(L":",2))==std::wstring::npos)continue;
+					NewFile = fileName.substr(0,colonPos);
+					if(LastFile.size()==0)LastFile=NewFile;
+					if(LastFile!=NewFile){
+						gtagSearchResult.AddItem(LastFile);	
+						symbol_blocks.push_back(Blocks);
+						LastFile=NewFile;
+					}
+					colonPos++;
+					if((numberPos=fileName.find(L":",colonPos))==std::wstring::npos)continue;
+					NewFile=fileName.substr(colonPos,numberPos-colonPos);
+					symbol_linenum_list.push_back(StrToIntW(NewFile.c_str()));
+					NewFile = fileName.substr(numberPos+1);
+					NewFile.erase (0, NewFile.find_first_not_of (L" \t\r\n")) ; 
+					symbol_list.push_back(NewFile);
+					Blocks++;
+				}
+				else{
 				//for now dont add h files
-				file_name = tchBuf;
-				if(file_name.find(L".h",file_name.size()-5)==std::wstring::npos)
+				if(fileName.find(L".h",fileName.size()-5)==std::wstring::npos)
 					gtagSearchResult.AddItem(tchBuf);
+				}
 			}
 			else if(SearchType==CTAG_FUNCTION){
 				std::wstring buffer = tchBuf;
@@ -393,7 +417,7 @@ void FileListDialog::ReadFromPipe(HANDLE g_hChildStd_OUT_Rd,int SearchType)
 						}
 					}
 					ctag_linenum_list.push_back(StrToIntW(line_num.c_str()));
-					ctag_func_list.push_back(tchBuf+looper+1+size_of_content);
+					ctag_func_list.push_back(tchBuf+looper+1+file_name_length);
 				}
 			}
 			buf = strtok_s( NULL, "\n",&context );
@@ -402,54 +426,73 @@ void FileListDialog::ReadFromPipe(HANDLE g_hChildStd_OUT_Rd,int SearchType)
 			break;
 	  }
 
-   }
-#ifdef DEBUG
-FreeConsole();
-#endif
-CloseHandle(g_hChildStd_OUT_Rd);
+	}
+	if(IsSymbolSearch){
+		gtagSearchResult.AddItem(LastFile);	
+		symbol_blocks.push_back(Blocks);
+	}
+	CloseHandle(g_hChildStd_OUT_Rd);
 } 
 
-
-void FileListDialog::OnListSelectionChanged(){
-	int sel;
-	sel=gtagSearchResult.GetCurrentSelectionIndex();
-
-}
 void FileListDialog::OnFileListDoubleClicked(){
-	gtagSearchResult.GetCurrentSelection(file_name);
-	if(file_name.find(L".h",file_name.size()-5)!=std::wstring::npos)
-		return;
-	linenum_list.clear();
-	ctag_func_list.clear();
-	ctag_linenum_list.clear();
-	size_of_content = file_name.size();
-	FullPathToExe=L".\\plugins\\gtagfornplus\\global.exe";
-	if(IsDefSearch){
-		//Parameters = L" -af ";
+	
+	if (IsSymbolSearch){
+		gtagSearchResult.GetCurrentSelection(fileName,FALSE);
+		linenum_list.clear();
+		gtagFunctionList.ClearAll();
+		int FileSel=gtagSearchResult.GetCurrentSelectionIndex();
+		int first,last;
+		std::vector<int>::iterator it1=symbol_blocks.begin();
+		std::vector<int>::iterator it2=symbol_linenum_list.begin();
+		std::vector<std::wstring>::iterator it3 = symbol_list.begin();
+		if(FileSel==0){
+			first = 0;
+			last = *(it1);
+		}
+		else{
+			first=it1[FileSel-1];
+			last=it1[FileSel];
+		}
+		for (first;first<last;first++){
+			linenum_list.push_back(it2[first]);
+			gtagFunctionList.AddItem(it3[first]);
+		}
+	}
+	else if(IsDefSearch){
 		int start=0;
 		int end=0;
-		if((start=file_name.find(L":",2))==std::wstring::npos)
+
+		gtagSearchResult.GetCurrentSelection(fileName);
+		file_name_length = fileName.size();
+
+		if((start=fileName.find(L":",2))==std::wstring::npos)
 			return;
 		else
-			if((end=file_name.find(L":",start+1))==std::wstring::npos)
+			if((end=fileName.find(L":",start+1))==std::wstring::npos)
 				return;
 			else{
-				std::wstring num_char = file_name.substr(start+1,end-start);
-				std::wstring file_name_part = file_name.substr(0,start);
+				std::wstring num_char = fileName.substr(start+1,end-start);
+				std::wstring file_name_part = fileName.substr(0,start);
 				int num=StrToIntW(num_char.c_str());
 				OpenFileAndGotoLine(file_name_part.c_str(),num);
 			}
+			return;
 	}
-	else
+	else{
+		linenum_list.clear();
+		gtagSearchResult.GetCurrentSelection(fileName);
+		file_name_length = fileName.size();
+		ctag_func_list.clear();
+		ctag_linenum_list.clear();
+		FullPathToExe=L".\\plugins\\gtagfornplus\\global.exe";
 		Parameters = L" -arf ";
-	Parameters.append(SearchString);
-	Parameters.append(L" ");
-	Parameters.append(file_name);
-	Search(GTAG_FUNCTION);
-	if(!IsDefSearch){
+		Parameters.append(SearchString);
+		Parameters.append(L" ");
+		Parameters.append(fileName);
+		Search(GTAG_FUNCTION);
 		FullPathToExe=L".\\plugins\\gtagfornplus\\ctags.exe";
 		Parameters = L" -x --sort=no ";
-		Parameters.append(file_name);
+		Parameters.append(fileName);
 		Search(CTAG_FUNCTION);
 		if((ctag_func_list.size()==ctag_linenum_list.size())&& ctag_func_list.size()!=0){
 			int list_size=ctag_linenum_list.size();
@@ -477,31 +520,26 @@ void FileListDialog::OnFileListDoubleClicked(){
 						gtagFunctionList.AddItem(list_item);
 						it3++;
 						break;
-						}
+					}
 					if(looper!=(list_size-2))it3++;
 				}
 				if(looper==list_size){
 					//belongs to last function
-							it3--;
-							std::wstring list_item;
-							list_item.clear();
-							list_item.append(*it3);
-							list_item.append(L" : ");
-							TCHAR str[20];
-							::_itot_s(*it1,str,20,10);
-							list_item.append(str);
-							gtagFunctionList.AddItem(list_item);
-							it3++;
+					it3--;
+					std::wstring list_item;
+					list_item.clear();
+					list_item.append(*it3);
+					list_item.append(L" : ");
+					TCHAR str[20];
+					::_itot_s(*it1,str,20,10);
+					list_item.append(str);
+					gtagFunctionList.AddItem(list_item);
+					it3++;
 				}
 			}
 		}							
 		else return; //something wrong... lets find out later
-
-
-	}//else{
-		//goto decl
-	//}
-
+	}
 }
 
 void FileListDialog::OpenFileAndGotoLine(const wchar_t * file_to_open,int GotoLine){
@@ -554,7 +592,7 @@ BOOL CALLBACK FileListDialog::run_dlgProc( HWND hWnd, UINT msg, WPARAM wp, LPARA
 				case LBN_DBLCLK:
 					int array_index=gtagFunctionList.GetCurrentSelectionIndex();
 					std::vector<int>::iterator it=linenum_list.begin()+array_index;
-					OpenFileAndGotoLine(file_name.c_str(),*it);
+					OpenFileAndGotoLine(fileName.c_str(),*it);
 					return 0;
 				}
 			}
