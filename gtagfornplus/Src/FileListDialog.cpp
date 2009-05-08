@@ -236,6 +236,8 @@ void FileListDialog::ShowDialog( bool Show )
 
 	display( Show );
 	gtagSearchResult.display(Show);	
+	gtagFunctionList.display(Show);
+	ResizeListBoxes();
 	IsShown = Show;
 }
 
@@ -479,6 +481,8 @@ void FileListDialog::OnFileListDoubleClicked(){
 			return;
 	}
 	else{
+		TCHAR str[20];
+		std::wstring list_item;
 		linenum_list.clear();
 		gtagSearchResult.GetCurrentSelection(fileName);
 		file_name_length = fileName.size();
@@ -497,44 +501,71 @@ void FileListDialog::OnFileListDoubleClicked(){
 		if((ctag_func_list.size()==ctag_linenum_list.size())&& ctag_func_list.size()!=0){
 			int list_size=ctag_linenum_list.size();
 			int looper=0;
-			std::wstring last_func;
+			
 			std::vector<int>::iterator it1;
 			std::vector<int>::iterator it2 = ctag_linenum_list.begin();
 			std::vector<std::wstring>::iterator it3 = ctag_func_list.begin();
-			for ( it1=linenum_list.begin() ; it1 != linenum_list.end(); it1++ ){
-				for(looper;looper<list_size;looper++,it2++){
-					if(*it2>=*it1){
-						std::wstring list_item;
-						if(looper){
-							it3--;
-							list_item.clear();
-							list_item.append(*it3);
-							list_item.append(L" : ");
-						}
-						else
-							list_item.append(L"Global Declaration : ");
 
-						TCHAR str[20];
+			if(list_size==1){
+				for ( it1=linenum_list.begin() ; it1 != linenum_list.end(); it1++ ){
+					if(*it2>=*it1){
+						list_item.clear();
+						list_item.append(*it3);
+						list_item.append(L" : ");
+					}
+					else
+						list_item.append(L"Global Declaration : ");
+
+					::_itot_s(*it1,str,20,10);
+					list_item.append(str);
+					gtagFunctionList.AddItem(list_item);				
+				}
+			}
+			else {
+				looper=0;
+				for ( it1=linenum_list.begin() ; it1 != linenum_list.end(); it1++ ){
+					if(looper==0 && *it1<it2[looper]){
+							list_item.clear();
+							list_item.append(L"Global Declaration : ");
+							list_item.append(L" : ");
+							::_itot_s(*it1,str,20,10);
+							list_item.append(str);
+							gtagFunctionList.AddItem(list_item);
+							continue;
+					}
+					for(;looper<(list_size-2);looper++){
+						if(*it1>it2[looper] && *it1<it2[looper+1]){
+							list_item.clear();
+							list_item.append(it3[looper]);
+							list_item.append(L" : ");
+							::_itot_s(*it1,str,20,10);
+							list_item.append(str);
+							gtagFunctionList.AddItem(list_item);
+							break;
+						}
+					}
+					if(looper==(list_size-2)){
+						//The items may fall between last and 'last but one' functions.
+						if(*it1>it2[looper] && *it1<it2[looper+1]){
+							list_item.clear();
+							list_item.append(it3[looper]);
+							list_item.append(L" : ");
+							::_itot_s(*it1,str,20,10);
+							list_item.append(str);
+							gtagFunctionList.AddItem(list_item);
+							continue;
+						}else 
+							looper++;
+					}
+					if(looper==(list_size-1)){
+						list_item.clear();
+						list_item.append(it3[looper]);
+						list_item.append(L" : ");
 						::_itot_s(*it1,str,20,10);
 						list_item.append(str);
 						gtagFunctionList.AddItem(list_item);
-						it3++;
-						break;
+						continue;
 					}
-					if(looper!=(list_size-2))it3++;
-				}
-				if(looper==list_size){
-					//belongs to last function
-					it3--;
-					std::wstring list_item;
-					list_item.clear();
-					list_item.append(*it3);
-					list_item.append(L" : ");
-					TCHAR str[20];
-					::_itot_s(*it1,str,20,10);
-					list_item.append(str);
-					gtagFunctionList.AddItem(list_item);
-					it3++;
 				}
 			}
 		}							
@@ -638,3 +669,34 @@ void FileListDialog::InitialiseDialog()
 {
 }
 
+void FileListDialog::DoDeclSearch(){
+	IsSymbolSearch = FALSE;
+	FullPathToExe = L".\\plugins\\gtagfornplus\\global.exe";
+	getSearchString();
+	Parameters = L" -a --result=grep ";
+	Parameters.append(SearchString);
+	getCurrentDir();
+	IsDefSearch = TRUE;
+	Search();
+}
+
+void FileListDialog::DoRefSearch(){
+	IsSymbolSearch = FALSE;
+	FullPathToExe = L".\\plugins\\gtagfornplus\\global.exe";
+	getSearchString();
+	Parameters = L" -ar ";
+	Parameters.append(SearchString);
+	getCurrentDir();
+	IsDefSearch = FALSE;
+	Search();
+	if(gtagSearchResult.GetItemCount()==0)
+		IsSymbolSearch = TRUE;
+	else
+		return;
+	symbol_linenum_list.clear();
+	symbol_list.clear();
+	symbol_blocks.clear();
+	Parameters = L" -axs --result=grep ";
+	Parameters.append(SearchString);
+	Search();
+}

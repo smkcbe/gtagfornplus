@@ -42,8 +42,23 @@ public:
 	virtual void destroy() {}
 
 	void ShowDialog( bool Show = TRUE );
+	void DoDeclSearch();
+	void DoRefSearch();
 
 	void Search(int SearchType=GTAG_FILES);
+protected:
+	// Overload DockingDlgInterface's dialog procedure
+	virtual BOOL CALLBACK run_dlgProc( HWND hWnd, UINT msg, WPARAM wp, LPARAM lp );
+	void InitialiseDialog();
+	void ReadFromPipe(HANDLE g_hChildStd_OUT_Rd,int SearchType=GTAG_FILES);
+
+private:
+	bool IsShown;
+	tTbData TBData;
+	int SearchStringSize;
+	void OpenFileAndGotoLine(const wchar_t *,int);
+	std::wstring fileName;
+	float WindowRatio;
 	std::wstring SearchString;
 	std::wstring FullPathToExe;
 	std::wstring Parameters;
@@ -60,29 +75,17 @@ public:
 	int file_name_length;
 	void getCurrentDir();
 	void getSearchString();
-	
-protected:
-	// Overload DockingDlgInterface's dialog procedure
-	virtual BOOL CALLBACK run_dlgProc( HWND hWnd, UINT msg, WPARAM wp, LPARAM lp );
-	void InitialiseDialog();
-	void ReadFromPipe(HANDLE g_hChildStd_OUT_Rd,int SearchType=GTAG_FILES);
+	int  oldx ;
+	BOOL fMoved;
+	BOOL fDragMode;	
 
-private:
-	bool IsShown;
-	tTbData TBData;
-	void OnFileListDoubleClicked();
-	int SearchStringSize;
-	void OpenFileAndGotoLine(const wchar_t *,int);
-	std::wstring fileName;
-	float WindowRatio;
+
 	void DrawXorBar(HDC hdc, int x1, int y1, int width, int height);
 	LRESULT Splitter_OnLButtonDown(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam);
 	LRESULT Splitter_OnLButtonUp(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam);
 	LRESULT Splitter_OnMouseMove(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam);
 	void ResizeListBoxes();
-	int  oldx ;
-	BOOL fMoved;
-	BOOL fDragMode;
+	void OnFileListDoubleClicked();
 };
 
 
