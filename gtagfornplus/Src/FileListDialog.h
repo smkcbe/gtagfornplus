@@ -24,6 +24,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "FileListDialog.h"
 #include "FileListBox.h"
 #include <vector>
+#include <tchar.h>
+#include "PluginInterface.h"
+#include "Window.h"
 
 
 extern HINSTANCE g_hInstance;

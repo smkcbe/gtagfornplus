@@ -18,10 +18,12 @@
 #ifndef PLUGININTERFACE_H
 #define PLUGININTERFACE_H
 
-#include <windows.h>
+#ifndef SCINTILLA_H
 #include "Scintilla.h"
+#endif //SCINTILLA_H
+#ifndef NOTEPAD_PLUS_MSGS_H
 #include "Notepad_plus_msgs.h"
-
+#endif //NOTEPAD_PLUS_MSGS_H
 #define UCHAR_SIZE 10240
 #define CHAR_SIZE (UCHAR_SIZE/2)+10
 #define GTAG_FILES	0

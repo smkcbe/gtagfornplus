@@ -18,13 +18,12 @@
 #ifndef STATIC_DIALOG_H
 #define STATIC_DIALOG_H
 
-//#include "resource.h"
+#ifndef NOTEPAD_PLUS_MSGS_H
+#include "Notepad_plus_msgs.h"
+#endif //NOTEPAD_PLUS_MSGS_H
+
 #include "Window.h"
-#include <TCHAR.h>
-#include "notepad_plus_msgs.h"
-
-
-#include <uxtheme.h>
+#include "Common.h"
 
 typedef HRESULT (WINAPI * ETDTProc) (HWND, DWORD);
 
@@ -47,12 +46,14 @@ struct DLGTEMPLATEEX {
 class StaticDialog : public Window
 {
 public :
-	StaticDialog() : Window(), _isModeles(false) {};
+	StaticDialog() : Window() {};
 	~StaticDialog(){
-		if (isCreated())
+		if (isCreated()) {
+			::SetWindowLongPtr(_hSelf, GWLP_USERDATA, (LONG_PTR)NULL);	//Prevent run_dlgProc from doing anything, since its virtual
 			destroy();
+		}
 	};
-	virtual void create(int dialogID, bool isRTL = false, bool isModeles = true);
+	virtual void create(int dialogID, bool isRTL = false);
 
     virtual bool isCreated() const {
 		return (_hSelf != NULL);
@@ -73,9 +74,7 @@ public :
 	};
 
     void destroy() {
-		if (_isModeles) {
-			::SendMessage(_hParent, NPPM_MODELESSDIALOG, MODELESSDIALOGREMOVE, (WPARAM)_hSelf);
-		}
+		::SendMessage(_hParent, NPPM_MODELESSDIALOG, MODELESSDIALOGREMOVE, (WPARAM)_hSelf);
 		::DestroyWindow(_hSelf);
 	};
 
@@ -86,8 +85,6 @@ protected :
 
     void alignWith(HWND handle, HWND handle2Align, PosAlign pos, POINT & point);
 	HGLOBAL makeRTLResource(int dialogID, DLGTEMPLATE **ppMyDlgTemplate);
-
-	bool		_isModeles;
 };
 
 #endif //STATIC_DIALOG_H

@@ -222,8 +222,10 @@ void FileListDialog::ShowDialog( bool Show )
 	if ( !isCreated() )
 	{
 		create(&TBData);
-		lstrcpy( TBData.pszName, TEXT("Gtag Search Results") );
-
+		//TCHAR *name=new TCHAR(20);
+		//lstrcpy( (LPWSTR)name , TEXT("Gtag Search Results") );
+		//TBData.pszName = name;
+		lstrcpy( TBData.pszName , TEXT("Gtag Search") );
 		TBData.uMask			= DWS_DF_CONT_LEFT | DWS_ICONTAB;
 		TBData.pszModuleName	= (LPCTSTR)getPluginFileName();
 		TBData.dlgID			= FILELIST_DOCKABLE_WINDOW_INDEX ;
@@ -652,13 +654,13 @@ BOOL CALLBACK FileListDialog::run_dlgProc( HWND hWnd, UINT msg, WPARAM wp, LPARA
 						}
 					default:
 						// Parse all other notifications to docking dialog interface
-						return DockingDlgInterface::run_dlgProc( _hSelf, msg, wp, lp );
+						return DockingDlgInterface::run_dlgProc(hWnd, msg, wp, lp );
 					}
 				}
 				break;
 			}
 		default:
-			return DockingDlgInterface::run_dlgProc( _hSelf, msg, wp, lp );
+			return DockingDlgInterface::run_dlgProc( hWnd, msg, wp, lp );
 	}
 
 	return FALSE;
