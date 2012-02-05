@@ -94,18 +94,21 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Common\stdafx.cpp" />
     <ClCompile Include="Src\FileListBox.cpp" />
     <ClCompile Include="Src\FileListDialog.cpp" />
     <ClCompile Include="Src\GtagForNPlus.cpp" />
     <ClCompile Include="Common\StaticDialog.cpp" />
-    <ClCompile Include="Common\stdafx.cpp" />
-    <ClCompile Include="Common\SysMsg.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Common.h" />
     <ClInclude Include="Common\Docking.h" />
     <ClInclude Include="Common\DockingDlgInterface.h" />
     <ClInclude Include="Common\dockingResource.h" />
+    <ClInclude Include="Common\precompiledHeaders.h" />
+    <ClInclude Include="Common\stdafx.h" />
+    <ClInclude Include="Common\SysMsg.h" />
+    <ClInclude Include="Common\targetver.h" />
     <ClInclude Include="Src\FileListBox.h" />
     <ClInclude Include="Src\FileListDialog.h" />
     <ClInclude Include="Common\Notepad_plus_msgs.h" />
@@ -113,9 +116,6 @@
     <ClInclude Include="Resource\resource.h" />
     <ClInclude Include="Common\Scintilla.h" />
     <ClInclude Include="Common\StaticDialog.h" />
-    <ClInclude Include="Common\stdafx.h" />
-    <ClInclude Include="Common\SysMsg.h" />
-    <ClInclude Include="Common\targetver.h" />
     <ClInclude Include="Common\Window.h" />
   </ItemGroup>
   <ItemGroup>

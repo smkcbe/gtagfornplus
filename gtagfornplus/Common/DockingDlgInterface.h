@@ -27,16 +27,18 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #ifndef DOCKING_H
 #include "Docking.h"
 #endif //DOCKING_H
-#include "StaticDialog.h"
+
+#include "Common.h"
+#include <StaticDialog.h>
 #include <Shlwapi.h>
-#include "PluginInterface.h"
+
 class DockingDlgInterface : public StaticDialog
 {
 public:
-	DockingDlgInterface(): StaticDialog(), _HSource(NULL), _data(NULL),\
+	DockingDlgInterface(): StaticDialog(), _HSource(NULL),\
 		_dlgID(-1), _isFloating(TRUE), _iDockedPos(0), _pluginName(TEXT("")) {};
 
-	DockingDlgInterface(int dlgID): StaticDialog(), _HSource(NULL), _data(NULL),\
+	DockingDlgInterface(int dlgID): StaticDialog(), _HSource(NULL),\
 		_dlgID(dlgID), _isFloating(TRUE), _iDockedPos(0), _pluginName(TEXT("")) {};
 	
 	virtual void init(HINSTANCE hInst, HWND parent)	{
@@ -60,9 +62,6 @@ public:
 
 		// additional info
 		data->pszAddInfo	= NULL;
-
-		_data = data;
-
 	};
 
 	virtual void updateDockingDlg() {
@@ -81,7 +80,7 @@ public:
 	};
 
 protected :
-	virtual BOOL CALLBACK run_dlgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+	virtual BOOL CALLBACK run_dlgProc(UINT message, WPARAM, LPARAM lParam)
 	{
 		switch (message) 
 		{
@@ -96,9 +95,6 @@ protected :
 					{
 						case DMN_CLOSE:
 						{
-							extern FuncItem funcItems[];
-							if (_data != NULL)
-								::SendMessage(_hParent, NPPM_SETMENUITEMCHECK, funcItems[_data->dlgID]._cmdID, (LPARAM)FALSE);
 							break;
 						}
 						case DMN_FLOAT:
@@ -126,7 +122,6 @@ protected :
 	
 	// Handles
     HWND			_HSource;
-	tTbData*		_data;
 	int				_dlgID;
 	bool            _isFloating;
 	int				_iDockedPos;

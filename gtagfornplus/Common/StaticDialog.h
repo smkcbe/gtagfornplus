@@ -22,8 +22,8 @@
 #include "Notepad_plus_msgs.h"
 #endif //NOTEPAD_PLUS_MSGS_H
 
-#include "Window.h"
-#include "Common.h"
+#include <stdafx.h>
+#include <Window.h>
 
 typedef HRESULT (WINAPI * ETDTProc) (HWND, DWORD);
 
@@ -53,7 +53,7 @@ public :
 			destroy();
 		}
 	};
-	virtual void create(int dialogID, bool isRTL = false);
+	virtual void create(int dialogID, bool isRTL = false, bool msgDestParent = true);
 
     virtual bool isCreated() const {
 		return (_hSelf != NULL);
@@ -73,6 +73,10 @@ public :
 		return p;
 	};
 
+	bool isCheckedOrNot(int checkControlID) const {
+		return (BST_CHECKED == ::SendMessage(::GetDlgItem(_hSelf, checkControlID), BM_GETCHECK, 0, 0));
+	};
+
     void destroy() {
 		::SendMessage(_hParent, NPPM_MODELESSDIALOG, MODELESSDIALOGREMOVE, (WPARAM)_hSelf);
 		::DestroyWindow(_hSelf);
@@ -81,7 +85,7 @@ public :
 protected :
 	RECT _rc;
 	static BOOL CALLBACK dlgProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
-	virtual BOOL CALLBACK run_dlgProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) = 0;
+	virtual BOOL CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam) = 0;
 
     void alignWith(HWND handle, HWND handle2Align, PosAlign pos, POINT & point);
 	HGLOBAL makeRTLResource(int dialogID, DLGTEMPLATE **ppMyDlgTemplate);

@@ -18,8 +18,6 @@
 #ifndef WINDOW_CONTROL_H
 #define WINDOW_CONTROL_H
 
-#include <windows.h>
-
 class Window
 {
 public:
@@ -50,9 +48,10 @@ public:
 		redraw();
 	};
 
-	virtual void redraw() const {
+	virtual void redraw(bool forceUpdate = false) const {
 		::InvalidateRect(_hSelf, NULL, TRUE);
-		::UpdateWindow(_hSelf);
+		if (forceUpdate)
+			::UpdateWindow(_hSelf);
 	};
 	
     virtual void getClientRect(RECT & rc) const {
@@ -82,13 +81,7 @@ public:
 	};
 
 	HWND getHSelf() const {
-		/*
-		if (!_hSelf)
-		{
-			::MessageBox(NULL, TEXT("_hSelf == NULL"), TEXT("class Window"), MB_OK);
-			throw int(999);
-		}
-		*/
+		//assert(_hSelf != 0);
 		return _hSelf;
 	};
 
@@ -101,11 +94,7 @@ public:
 	};
 
     HINSTANCE getHinst() const {
-		if (!_hInst)
-		{
-			::MessageBox(NULL, TEXT("_hInst == NULL"), TEXT("class Window"), MB_OK);
-			throw int(1999);
-		}
+		//assert(_hInst != 0);
 		return _hInst;
 	};
 protected:

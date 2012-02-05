@@ -27,7 +27,7 @@ void GtagFileListbox::init(HINSTANCE hInst, HWND parent)
 	Window::init( hInst, parent );
 
 	_hSelf = CreateWindowEx(0, TEXT("listbox"), NULL,
-		WS_CHILD | WS_VISIBLE | WS_BORDER |WS_HSCROLL |WS_VSCROLL| LBS_STANDARD ^ LBS_SORT ,
+		WS_CHILD | WS_VISIBLE | WS_BORDER |WS_HSCROLL |WS_VSCROLL | LBS_STANDARD ^ LBS_SORT ,
 		0,0,0,0, parent, 0, hInst, NULL );
 
 	if ( !_hSelf )
@@ -90,4 +90,30 @@ int GtagFileListbox::GetCurrentSelection(std::wstring &content,BOOL Truncate)
 	if(Truncate)data[sel-1]=0x0;
 	content.append(data,sel);
 	return sel;
+}
+
+void GtagFileListbox::SetTTText()
+{
+	std::wstring tt;
+	GetCurrentSelection( tt, FALSE);
+	
+    // Create the tooltip. g_hInst is the global instance handle.
+    HWND hwndTip = CreateWindowEx(NULL, TOOLTIPS_CLASS, NULL,
+                              WS_POPUP |TTS_ALWAYSTIP | TTS_BALLOON,
+                              CW_USEDEFAULT, CW_USEDEFAULT,
+                              CW_USEDEFAULT, CW_USEDEFAULT,
+                              _hParent, NULL, 
+                              _hInst, NULL);
+    
+   if (!hwndTip) return;
+                              
+    // Associate the tooltip with the tool.
+    TOOLINFO toolInfo = { 0 };
+    toolInfo.cbSize = sizeof(toolInfo);
+	toolInfo.hwnd = _hParent;
+    toolInfo.uFlags = TTF_IDISHWND | TTF_SUBCLASS;
+    toolInfo.uId = (UINT_PTR)_hSelf;
+	toolInfo.lpszText = (LPWSTR)tt.c_str();
+	SendMessage(hwndTip, TTM_ADDTOOL, 0, (LPARAM)&toolInfo);
+	return;
 }

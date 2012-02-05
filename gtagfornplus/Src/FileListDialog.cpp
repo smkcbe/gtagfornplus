@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "Common.h"
 #include "FileListDialog.h"
 
 // Splitter logic from http://www.codeproject.com/KB/winsdk/SplitterWindowProject.aspx
@@ -225,7 +226,7 @@ void FileListDialog::ShowDialog( bool Show )
 		//TCHAR *name=new TCHAR(20);
 		//lstrcpy( (LPWSTR)name , TEXT("Gtag Search Results") );
 		//TBData.pszName = name;
-		lstrcpy( TBData.pszName , TEXT("Gtag Search") );
+		TBData.pszName = TEXT("Gtag Search");
 		TBData.uMask			= DWS_DF_CONT_LEFT | DWS_ICONTAB;
 		TBData.pszModuleName	= (LPCTSTR)getPluginFileName();
 		TBData.dlgID			= FILELIST_DOCKABLE_WINDOW_INDEX ;
@@ -582,7 +583,7 @@ void FileListDialog::OpenFileAndGotoLine(const wchar_t * file_to_open,int GotoLi
 	::SendMessage(g_NppData._scintillaMainHandle, SCI_SETFOCUS, (WPARAM)1, 0);	
 }
 
-BOOL CALLBACK FileListDialog::run_dlgProc( HWND hWnd, UINT msg, WPARAM wp, LPARAM lp )
+BOOL CALLBACK FileListDialog::run_dlgProc( UINT msg, WPARAM wp, LPARAM lp )
 {
 	switch ( msg )
 	{
@@ -594,15 +595,15 @@ BOOL CALLBACK FileListDialog::run_dlgProc( HWND hWnd, UINT msg, WPARAM wp, LPARA
 			ResizeListBoxes();
 			break;
 		case WM_LBUTTONDOWN:
-			Splitter_OnLButtonDown(hWnd, msg, wp, lp);
+			Splitter_OnLButtonDown(_hSelf, msg, wp, lp);
 			return 0;
 
 		case WM_LBUTTONUP:
-			Splitter_OnLButtonUp(hWnd, msg, wp, lp);
+			Splitter_OnLButtonUp(_hSelf, msg, wp, lp);
 			return 0;
 
 		case WM_MOUSEMOVE:
-			Splitter_OnMouseMove(hWnd, msg, wp, lp);
+			Splitter_OnMouseMove(_hSelf, msg, wp, lp);
 			return 0;
 		case WM_MOVE:
 		case WM_COMMAND:
@@ -611,6 +612,7 @@ BOOL CALLBACK FileListDialog::run_dlgProc( HWND hWnd, UINT msg, WPARAM wp, LPARA
 				switch ( HIWORD(wp) )
 				{
 				case LBN_SELCHANGE:
+					//gtagSearchResult.SetTTText();
 					if(IsDefSearch)return 0;
 
 				case LBN_DBLCLK:
@@ -622,6 +624,10 @@ BOOL CALLBACK FileListDialog::run_dlgProc( HWND hWnd, UINT msg, WPARAM wp, LPARA
 			{
 				switch ( HIWORD(wp) )
 				{
+				/*case LBN_SELCHANGE:
+					gtagFunctionList.SetTTText();
+					return 0;*/
+
 				case LBN_DBLCLK:
 					int array_index=gtagFunctionList.GetCurrentSelectionIndex();
 					std::vector<int>::iterator it=linenum_list.begin()+array_index;
@@ -654,13 +660,13 @@ BOOL CALLBACK FileListDialog::run_dlgProc( HWND hWnd, UINT msg, WPARAM wp, LPARA
 						}
 					default:
 						// Parse all other notifications to docking dialog interface
-						return DockingDlgInterface::run_dlgProc(hWnd, msg, wp, lp );
+						return DockingDlgInterface::run_dlgProc(msg, wp, lp );
 					}
 				}
 				break;
 			}
 		default:
-			return DockingDlgInterface::run_dlgProc( hWnd, msg, wp, lp );
+			return DockingDlgInterface::run_dlgProc(msg, wp, lp );
 	}
 
 	return FALSE;

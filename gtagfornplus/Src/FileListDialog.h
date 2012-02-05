@@ -51,7 +51,7 @@ public:
 	void Search(int SearchType=GTAG_FILES);
 protected:
 	// Overload DockingDlgInterface's dialog procedure
-	virtual BOOL CALLBACK run_dlgProc( HWND hWnd, UINT msg, WPARAM wp, LPARAM lp );
+	virtual BOOL CALLBACK run_dlgProc( UINT msg, WPARAM wp, LPARAM lp );
 	void InitialiseDialog();
 	void ReadFromPipe(HANDLE g_hChildStd_OUT_Rd,int SearchType=GTAG_FILES);
 

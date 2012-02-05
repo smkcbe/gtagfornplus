@@ -15,9 +15,10 @@
 //along with this program; if not, write to the Free Software
 //Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+#include "precompiledHeaders.h"
 #include "stdafx.h"
-//#include "precompiledHeaders.h"
 #include "StaticDialog.h"
+#include <stdio.h>
 
 void StaticDialog::goToCenter()
 {
@@ -87,7 +88,7 @@ HGLOBAL StaticDialog::makeRTLResource(int dialogID, DLGTEMPLATE **ppMyDlgTemplat
 	return hMyDlgTemplate;
 }
 
-void StaticDialog::create(int dialogID, bool isRTL)
+void StaticDialog::create(int dialogID, bool isRTL, bool msgDestParent)
 {
 	if (isRTL)
 	{
@@ -101,12 +102,15 @@ void StaticDialog::create(int dialogID, bool isRTL)
 
 	if (!_hSelf)
 	{
-		//systemMessage(TEXT("StaticDialog"));
-		//throw int(666);
+		DWORD err = ::GetLastError();
+		char errMsg[256];
+		sprintf(errMsg, "CreateDialogParam() return NULL.\rGetLastError() == %d", err);
+		::MessageBoxA(NULL, errMsg, "In StaticDialog::create()", MB_OK);
 		return;
 	}
 
-	::SendMessage(_hParent, NPPM_MODELESSDIALOG, MODELESSDIALOGADD, (WPARAM)_hSelf);
+	// if the destination of message NPPM_MODELESSDIALOG is not its parent, then it's the grand-parent
+	::SendMessage(msgDestParent?_hParent:(::GetParent(_hParent)), NPPM_MODELESSDIALOG, MODELESSDIALOGADD, (WPARAM)_hSelf);
 }
 
 BOOL CALLBACK StaticDialog::dlgProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) 
@@ -119,7 +123,7 @@ BOOL CALLBACK StaticDialog::dlgProc(HWND hwnd, UINT message, WPARAM wParam, LPAR
 			pStaticDlg->_hSelf = hwnd;
 			::SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)lParam);
 			::GetWindowRect(hwnd, &(pStaticDlg->_rc));
-            pStaticDlg->run_dlgProc(hwnd, message, wParam, lParam);
+            pStaticDlg->run_dlgProc(message, wParam, lParam);
 			
 			return TRUE;
 		}
@@ -129,7 +133,7 @@ BOOL CALLBACK StaticDialog::dlgProc(HWND hwnd, UINT message, WPARAM wParam, LPAR
 			StaticDialog *pStaticDlg = reinterpret_cast<StaticDialog *>(::GetWindowLongPtr(hwnd, GWL_USERDATA));
 			if (!pStaticDlg)
 				return FALSE;
-			return pStaticDlg->run_dlgProc(hwnd, message, wParam, lParam);
+			return pStaticDlg->run_dlgProc(message, wParam, lParam);
 		}
 	}
 }

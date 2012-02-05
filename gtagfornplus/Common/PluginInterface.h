@@ -21,6 +21,7 @@
 #ifndef SCINTILLA_H
 #include "Scintilla.h"
 #endif //SCINTILLA_H
+
 #ifndef NOTEPAD_PLUS_MSGS_H
 #include "Notepad_plus_msgs.h"
 #endif //NOTEPAD_PLUS_MSGS_H
@@ -73,7 +74,7 @@ typedef FuncItem * (__cdecl * PFUNCGETFUNCSARRAY)(int *);
 
 // You should implement (or define an empty function body) those functions which are called by Notepad++ plugin manager
 extern "C" __declspec(dllexport) void setInfo(NppData);
-//extern "C" __declspec(dllexport) const TCHAR * getName();
+extern "C" __declspec(dllexport) const TCHAR * getName();
 extern "C" __declspec(dllexport) FuncItem * getFuncsArray(int *);
 extern "C" __declspec(dllexport) void beNotified(SCNotification *);
 extern "C" __declspec(dllexport) LRESULT messageProc(UINT Message, WPARAM wParam, LPARAM lParam);
