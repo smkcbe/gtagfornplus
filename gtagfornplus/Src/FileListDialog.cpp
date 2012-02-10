@@ -1,3 +1,22 @@
+/*
+This file is part of GTAGFORNPLUS Plugin for Notepad++
+Copyright (C) 20011 Mohan Kumar S
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+
 #include "stdafx.h"
 #include "Common.h"
 #include "FileListDialog.h"
@@ -351,7 +370,7 @@ void FileListDialog::ReadFromPipe(HANDLE g_hChildStd_OUT_Rd,int SearchType)
       if( ! bSuccess || dwRead == 0 ) break; 
 	  chBuf=charBuf;	  
 	  dwWritten += dwRead;
-	  buf=strtok_s(chBuf,"\n",&context);
+	  buf=strtok_s(chBuf,"\r\n",&context);
 	  while( buf != NULL ) {
 		len = strlen(buf)+1;
 		if(len<=dwWritten){
@@ -425,7 +444,7 @@ void FileListDialog::ReadFromPipe(HANDLE g_hChildStd_OUT_Rd,int SearchType)
 					ctag_func_list.push_back(tchBuf+looper+1+file_name_length);
 				}
 			}
-			buf = strtok_s( NULL, "\n",&context );
+			buf = strtok_s( NULL, "\r\n",&context );
 		}
 		else
 			break;
@@ -467,7 +486,7 @@ void FileListDialog::OnFileListDoubleClicked(){
 		int start=0;
 		int end=0;
 
-		gtagSearchResult.GetCurrentSelection(fileName);
+		gtagSearchResult.GetCurrentSelection(fileName,FALSE);
 		file_name_length = fileName.size();
 
 		if((start=fileName.find(L":",2))==std::wstring::npos)
@@ -487,19 +506,22 @@ void FileListDialog::OnFileListDoubleClicked(){
 		TCHAR str[20];
 		std::wstring list_item;
 		linenum_list.clear();
-		gtagSearchResult.GetCurrentSelection(fileName);
+		gtagSearchResult.GetCurrentSelection(fileName,FALSE);
 		file_name_length = fileName.size();
 		ctag_func_list.clear();
 		ctag_linenum_list.clear();
 		FullPathToExe=L".\\plugins\\gtagfornplus\\global.exe";
 		Parameters = L" -arf ";
 		Parameters.append(SearchString);
-		Parameters.append(L" ");
+		Parameters.append(L" \"");
 		Parameters.append(fileName);
+		Parameters.append(L"\"");		
 		Search(GTAG_FUNCTION);
 		FullPathToExe=L".\\plugins\\gtagfornplus\\ctags.exe";
 		Parameters = L" -x --sort=no ";
+		Parameters.append(L" \"");
 		Parameters.append(fileName);
+		Parameters.append(L"\"");
 		Search(CTAG_FUNCTION);
 		if((ctag_func_list.size()==ctag_linenum_list.size())&& ctag_func_list.size()!=0){
 			int list_size=ctag_linenum_list.size();
@@ -521,7 +543,8 @@ void FileListDialog::OnFileListDoubleClicked(){
 
 					::_itot_s(*it1,str,20,10);
 					list_item.append(str);
-					gtagFunctionList.AddItem(list_item);				
+					gtagFunctionList.AddItem(list_item);
+					list_item.clear();
 				}
 			}
 			else {
