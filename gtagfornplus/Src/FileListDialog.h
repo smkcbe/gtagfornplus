@@ -47,6 +47,8 @@ public:
 	void ShowDialog( bool Show = TRUE );
 	void DoDeclSearch();
 	void DoRefSearch();
+	void IncFont();
+	void DecFont();
 
 	void Search(int SearchType=GTAG_FILES);
 protected:

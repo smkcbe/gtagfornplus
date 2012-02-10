@@ -81,8 +81,7 @@ INT GtagFileListbox::GetCurrentSelectionIndex()
 	return (INT)::SendMessage( _hSelf, LB_GETCURSEL, 0, 0 );
 }
 
-int GtagFileListbox::GetCurrentSelection(std::wstring &content,BOOL Truncate)
-{
+int GtagFileListbox::GetCurrentSelection(std::wstring &content,BOOL Truncate){
 	int sel = (INT)::SendMessage( _hSelf, LB_GETCURSEL, 0, 0 );
 	TCHAR data[1024];
 	sel = (int)::SendMessage(_hSelf,LB_GETTEXT ,(WPARAM)sel,(LPARAM)(LPTSTR)data);
@@ -90,6 +89,11 @@ int GtagFileListbox::GetCurrentSelection(std::wstring &content,BOOL Truncate)
 	if(Truncate)data[sel-1]=0x0;
 	content.append(data,sel);
 	return sel;
+}
+
+void GtagFileListbox::SetFirstItemSelected(){
+	::SendMessage(_hSelf,LB_SETCURSEL,(WPARAM)0,0);
+	return;
 }
 
 void GtagFileListbox::SetTTText()
@@ -116,4 +120,26 @@ void GtagFileListbox::SetTTText()
 	toolInfo.lpszText = (LPWSTR)tt.c_str();
 	SendMessage(hwndTip, TTM_ADDTOOL, 0, (LPARAM)&toolInfo);
 	return;
+}
+
+void GtagFileListbox::IncFont(){
+	LOGFONT lf;
+	::GetObject( hNewFont, sizeof( lf ), &lf );
+	lf.lfHeight++;
+	lf.lfWidth = 0;
+	lf.lfWeight = FW_NORMAL;
+	lstrcpy( lf.lfFaceName, TEXT("Courier New") );
+	hNewFont = ::CreateFontIndirect( &lf );
+	::SendMessage( _hSelf, WM_SETFONT, (WPARAM)hNewFont, 1 );
+}
+
+void GtagFileListbox::DecFont(){
+	LOGFONT lf;
+	::GetObject( hNewFont, sizeof( lf ), &lf );
+	lf.lfHeight--;
+	lf.lfWidth = 0;
+	lf.lfWeight = FW_NORMAL;
+	lstrcpy( lf.lfFaceName, TEXT("Courier New") );
+	hNewFont = ::CreateFontIndirect( &lf );
+	::SendMessage( _hSelf, WM_SETFONT, (WPARAM)hNewFont, 1 );
 }

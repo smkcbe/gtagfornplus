@@ -29,7 +29,7 @@ NppData				g_NppData;
 FileListDialog	file_list_dialog;
 
 const TCHAR PLUGIN_NAME[] = TEXT("Gtag Search");
-const int NUM_FUNCS = 4;
+const int NUM_FUNCS = 6;
 
 FuncItem funcItems[NUM_FUNCS];
 
@@ -78,7 +78,6 @@ void ToggleDialog(){
 	HMENU hMenu = ::GetMenu(g_NppData._nppHandle);
 	UINT state = ::GetMenuState(hMenu, funcItems[FILELIST_DOCKABLE_WINDOW_INDEX]._cmdID, MF_BYCOMMAND);
 	file_list_dialog.ShowDialog( state & MF_CHECKED ? false : true );
-
 }
 
 
@@ -92,7 +91,15 @@ void FindRefr(){
 }
 
 void GenerateTags(){
-	file_list_dialog.ShowDialog();
+	//file_list_dialog.gtagSearchResult.SetFirstItemSelected();
+}
+
+void IncreaseFont(){
+	file_list_dialog.IncFont();
+}
+
+void DecreaseFont(){
+	file_list_dialog.DecFont();
 }
 
 BOOL APIENTRY DllMain( HMODULE hModule,
@@ -135,6 +142,22 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 			funcItems[FILELIST_GEN_TAG_INDEX]._pShKey->_isCtrl = true;
 			funcItems[FILELIST_GEN_TAG_INDEX]._pShKey->_isShift = false;
 			funcItems[FILELIST_GEN_TAG_INDEX]._pShKey->_key = 0x44; 
+
+			funcItems[FILELIST_INC_FONT_INDEX]._pFunc = IncreaseFont;
+			lstrcpy(funcItems[FILELIST_INC_FONT_INDEX]._itemName, TEXT("Increase Dialog Font Size"));
+			funcItems[FILELIST_INC_FONT_INDEX]._pShKey = new ShortcutKey;
+			funcItems[FILELIST_INC_FONT_INDEX]._pShKey->_isAlt = true;
+			funcItems[FILELIST_INC_FONT_INDEX]._pShKey->_isCtrl = true;
+			funcItems[FILELIST_INC_FONT_INDEX]._pShKey->_isShift = false;
+			funcItems[FILELIST_INC_FONT_INDEX]._pShKey->_key = 0x26; 
+
+			funcItems[FILELIST_DEC_FONT_INDEX]._pFunc = DecreaseFont;
+			lstrcpy(funcItems[FILELIST_DEC_FONT_INDEX]._itemName, TEXT("Decrease Dialog Font Size"));
+			funcItems[FILELIST_DEC_FONT_INDEX]._pShKey = new ShortcutKey;
+			funcItems[FILELIST_DEC_FONT_INDEX]._pShKey->_isAlt = true;
+			funcItems[FILELIST_DEC_FONT_INDEX]._pShKey->_isCtrl = true;
+			funcItems[FILELIST_DEC_FONT_INDEX]._pShKey->_isShift = false;
+			funcItems[FILELIST_DEC_FONT_INDEX]._pShKey->_key = 0x28; 
 
 		case DLL_THREAD_ATTACH:
 		case DLL_THREAD_DETACH:

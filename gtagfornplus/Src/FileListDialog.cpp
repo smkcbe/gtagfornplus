@@ -722,12 +722,30 @@ void FileListDialog::DoRefSearch(){
 	Search();
 	if(gtagSearchResult.GetItemCount()==0)
 		IsSymbolSearch = TRUE;
-	else
+	else{
+		gtagSearchResult.SetFirstItemSelected();
+		OnFileListDoubleClicked();
 		return;
+	}
 	symbol_linenum_list.clear();
 	symbol_list.clear();
 	symbol_blocks.clear();
 	Parameters = L" -axs --result=grep ";
 	Parameters.append(SearchString);
 	Search();
+	if(gtagSearchResult.GetItemCount()!=0){
+		gtagSearchResult.SetFirstItemSelected();
+		OnFileListDoubleClicked();
+	}
+}
+
+void FileListDialog::IncFont(){
+	gtagSearchResult.IncFont();
+	gtagFunctionList.IncFont();
+	ResizeListBoxes();
+}
+void FileListDialog::DecFont(){
+	gtagSearchResult.DecFont();
+	gtagFunctionList.DecFont();
+	ResizeListBoxes();
 }
