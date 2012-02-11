@@ -372,7 +372,7 @@ void FileListDialog::ReadFromPipe(HANDLE g_hChildStd_OUT_Rd,int SearchType)
 	  dwWritten += dwRead;
 	  buf=strtok_s(chBuf,"\r\n",&context);
 	  while( buf != NULL ) {
-		len = strlen(buf)+1;
+		len = strlen(buf)+2;
 		if(len<=dwWritten){
 			mbstowcs(tchBuf,buf,len);
 			dwWritten-=len;
