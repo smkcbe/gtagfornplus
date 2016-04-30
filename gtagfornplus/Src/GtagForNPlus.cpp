@@ -113,51 +113,21 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 		case DLL_PROCESS_ATTACH:
 			funcItems[FILELIST_DOCKABLE_WINDOW_INDEX]._pFunc = ToggleDialog;
 			lstrcpy(funcItems[FILELIST_DOCKABLE_WINDOW_INDEX]._itemName, TEXT("View Search Window"));
-			funcItems[FILELIST_DOCKABLE_WINDOW_INDEX]._pShKey = new ShortcutKey;
-			funcItems[FILELIST_DOCKABLE_WINDOW_INDEX]._pShKey->_isAlt = true;
-			funcItems[FILELIST_DOCKABLE_WINDOW_INDEX]._pShKey->_isCtrl = true;
-			funcItems[FILELIST_DOCKABLE_WINDOW_INDEX]._pShKey->_isShift = false;
-			funcItems[FILELIST_DOCKABLE_WINDOW_INDEX]._pShKey->_key = 0x41; 
 
 			funcItems[FILELIST_FIND_DECL_INDEX]._pFunc = FindDecl;
 			lstrcpy(funcItems[FILELIST_FIND_DECL_INDEX]._itemName, TEXT("Find Definition"));
-			funcItems[FILELIST_FIND_DECL_INDEX]._pShKey = new ShortcutKey;
-			funcItems[FILELIST_FIND_DECL_INDEX]._pShKey->_isAlt = true;
-			funcItems[FILELIST_FIND_DECL_INDEX]._pShKey->_isCtrl = true;
-			funcItems[FILELIST_FIND_DECL_INDEX]._pShKey->_isShift = false;
-			funcItems[FILELIST_FIND_DECL_INDEX]._pShKey->_key = 0x42; 
 
 			funcItems[FILELIST_FIND_REF_INDEX]._pFunc = FindRefr;
 			lstrcpy(funcItems[FILELIST_FIND_REF_INDEX]._itemName, TEXT("Find References"));
-			funcItems[FILELIST_FIND_REF_INDEX]._pShKey = new ShortcutKey;
-			funcItems[FILELIST_FIND_REF_INDEX]._pShKey->_isAlt = true;
-			funcItems[FILELIST_FIND_REF_INDEX]._pShKey->_isCtrl = true;
-			funcItems[FILELIST_FIND_REF_INDEX]._pShKey->_isShift = false;
-			funcItems[FILELIST_FIND_REF_INDEX]._pShKey->_key = 0x43; 
 
 			funcItems[FILELIST_GEN_TAG_INDEX]._pFunc = GenerateTags;
 			lstrcpy(funcItems[FILELIST_GEN_TAG_INDEX]._itemName, TEXT("Generate Tag DB"));
-			funcItems[FILELIST_GEN_TAG_INDEX]._pShKey = new ShortcutKey;
-			funcItems[FILELIST_GEN_TAG_INDEX]._pShKey->_isAlt = true;
-			funcItems[FILELIST_GEN_TAG_INDEX]._pShKey->_isCtrl = true;
-			funcItems[FILELIST_GEN_TAG_INDEX]._pShKey->_isShift = false;
-			funcItems[FILELIST_GEN_TAG_INDEX]._pShKey->_key = 0x44; 
-
+ 
 			funcItems[FILELIST_INC_FONT_INDEX]._pFunc = IncreaseFont;
 			lstrcpy(funcItems[FILELIST_INC_FONT_INDEX]._itemName, TEXT("Increase Dialog Font Size"));
-			funcItems[FILELIST_INC_FONT_INDEX]._pShKey = new ShortcutKey;
-			funcItems[FILELIST_INC_FONT_INDEX]._pShKey->_isAlt = true;
-			funcItems[FILELIST_INC_FONT_INDEX]._pShKey->_isCtrl = true;
-			funcItems[FILELIST_INC_FONT_INDEX]._pShKey->_isShift = false;
-			funcItems[FILELIST_INC_FONT_INDEX]._pShKey->_key = 0x26; 
 
 			funcItems[FILELIST_DEC_FONT_INDEX]._pFunc = DecreaseFont;
 			lstrcpy(funcItems[FILELIST_DEC_FONT_INDEX]._itemName, TEXT("Decrease Dialog Font Size"));
-			funcItems[FILELIST_DEC_FONT_INDEX]._pShKey = new ShortcutKey;
-			funcItems[FILELIST_DEC_FONT_INDEX]._pShKey->_isAlt = true;
-			funcItems[FILELIST_DEC_FONT_INDEX]._pShKey->_isCtrl = true;
-			funcItems[FILELIST_DEC_FONT_INDEX]._pShKey->_isShift = false;
-			funcItems[FILELIST_DEC_FONT_INDEX]._pShKey->_key = 0x28; 
 
 		case DLL_THREAD_ATTACH:
 		case DLL_THREAD_DETACH:

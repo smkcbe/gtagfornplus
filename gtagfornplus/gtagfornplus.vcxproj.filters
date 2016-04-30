@@ -68,16 +68,10 @@
     <ClInclude Include="Common\Common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Common\precompiledHeaders.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Common\stdafx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Common\SysMsg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Common\targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\precompiledHeaders.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
